@@ -7,6 +7,10 @@ Backend REST API for managing:
 
 The project is built with Flask, OpenAPI (flask-openapi3), SQLAlchemy, and SQLite.
 
+For component boundaries, domain models, request sequences, payload examples,
+and failure flows, see
+[SPECIFIC_ARCHITECTURE.md](SPECIFIC_ARCHITECTURE.md).
+
 ## Project Overview
 
 This API provides CRUD operations for the MVP domain and exposes interactive OpenAPI documentation.
@@ -91,7 +95,7 @@ python --version
 
 ## Installation
 
-From the backend folder (`Sprint_DFSB_Back_End_API`):
+From the backend folder (`SoftwareArchitecture_Back_End_API`):
 
 1. Create virtual environment:
 
@@ -150,14 +154,14 @@ Start the complete application in this order:
 
 ```powershell
 cd ..\SoftwareArchitecture_API_External
-& ".\venv\Scripts\Activate.ps1"
+& ".\.venv\Scripts\Activate.ps1"
 python app.py
 ```
 
 2. Start this backend on port `5001`:
 
 ```powershell
-cd ..\Sprint_DFSB_Back_End_API
+cd ..\SoftwareArchitecture_Back_End_API
 & ".\.venv\Scripts\Activate.ps1"
 python app.py
 ```
