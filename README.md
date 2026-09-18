@@ -57,9 +57,10 @@ service-to-service traffic.
 
 SQLite data is stored in the `backend-data` named volume, mounted only at
 `/app/database`. File logging is disabled in Compose so operational logs flow
-to container standard output. See
-[the parent containerization guide](../CONTAINERIZATION.md) for operation and
-port overrides.
+to container standard output. The stack definition is maintained in
+[the external API repository](../SoftwareArchitecture_API_External/docker-compose.yml).
+See [the containerization guide](../CONTAINERIZATION.md) for operation and port
+overrides.
 
 ## Backend-Frontend Route Mapping
 
@@ -182,6 +183,20 @@ python app.py
 
 3. Open the frontend with VS Code Live Server on
 	`http://127.0.0.1:5500`.
+
+### Linux: Run with Gunicorn
+
+On Linux, the backend can run with Gunicorn instead of Flask's development
+server. Activate the backend virtual environment, ensure the integration API
+and backend `.env` configuration are available, then run:
+
+```bash
+source .venv/bin/activate
+gunicorn --bind 0.0.0.0:5001 --workers 1 --threads 4 --timeout 60 app:app
+```
+
+This standalone Gunicorn command is intended for Linux environments. For local
+development on Windows, use `python app.py` as described above.
 
 Service URLs:
 
