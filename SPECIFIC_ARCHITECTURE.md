@@ -44,6 +44,13 @@ The browser is the backend's public application client. The integration API is
 an internal downstream service. Neither adjacent repository is imported as a
 Python package; communication occurs through HTTP contracts.
 
+Local development runs the Flask application on `127.0.0.1:5001` and normally
+uses `http://127.0.0.1:8001` for the downstream service. In Compose, Gunicorn
+binds the backend to container port `5001`, nginx forwards browser `/api`
+requests to it, and the downstream URL is
+`http://shippo-integration:8001`. The backend health route is process liveness
+only. SQLite persists in the `backend-data` volume mounted at `/app/database`.
+
 ## 3. Layered Structure
 
 ```mermaid

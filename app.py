@@ -7,6 +7,7 @@
 
 
 # ── Standard library imports ─────────────────────────────────────────────────
+import os
 import re
 import time
 import uuid
@@ -142,6 +143,11 @@ home_tag = Tag(
     ),
 )
 
+health_tag = Tag(
+    name="Health",
+    description="Report backend HTTP process liveness without downstream checks.",
+)
+
 shipping_tag = Tag(
     name="Shipping Quote",
     description=(
@@ -186,6 +192,12 @@ asset_tag = Tag(
 def home():
     """Redirects to /openapi, offering multiple API documentation views."""
     return redirect("/openapi")
+
+
+@app.get("/health", tags=[health_tag])  # type: ignore[misc]
+def health():
+    """Report backend process liveness without querying dependencies."""
+    return {"status": "up", "service": "backend"}, 200
 
 
 # =============================================================================
@@ -1018,11 +1030,42 @@ def get_shipping_quote_route(
 # =============================================================================
 # Starts the Flask development server only when this file is executed directly
 # (i.e. `python app.py`). Ignored when imported as a module.
-# debug=True enables auto-reload on code changes and verbose error pages.
+
+TRUE_ENV_VALUES = frozenset({"1", "true", "yes", "on"})
+FALSE_ENV_VALUES = frozenset({"0", "false", "no", "off"})
+
+
+def parse_boolean_environment(name: str, default: bool = False) -> bool:
+    """Parse one explicit boolean environment value or return its default."""
+    raw_value = os.getenv(name)
+    if raw_value is None:
+        return default
+
+    normalized = raw_value.strip().lower()
+    if normalized in TRUE_ENV_VALUES:
+        return True
+    if normalized in FALSE_ENV_VALUES:
+        return False
+    raise ValueError(
+        f"{name} must be one of: "
+        + ", ".join(sorted(TRUE_ENV_VALUES | FALSE_ENV_VALUES))
+    )
+
+
+def get_backend_port() -> int:
+    """Return a validated backend TCP port from the process environment."""
+    raw_value = os.getenv("BACKEND_PORT", "5001")
+    try:
+        port = int(raw_value)
+    except ValueError as exc:
+        raise ValueError("BACKEND_PORT must be an integer") from exc
+    if not 1 <= port <= 65535:
+        raise ValueError("BACKEND_PORT must be between 1 and 65535")
+    return port
 
 if __name__ == "__main__":
     app.run(
-        host="127.0.0.1",
-        port=5001,
-        debug=True
+        host=os.getenv("BACKEND_HOST", "127.0.0.1"),
+        port=get_backend_port(),
+        debug=parse_boolean_environment("BACKEND_DEBUG"),
     )

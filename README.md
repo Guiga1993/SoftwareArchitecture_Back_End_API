@@ -47,6 +47,20 @@ the product-specific freight rule, creates one parcel per generator, and sends
 integration API knows Shippo credentials, provider paths, retry policy, and raw
 provider response formats.
 
+## Container Deployment
+
+The container runs `app:app` with Gunicorn on port `5001`. Its liveness check
+calls `GET /health` locally and does not contact the integration service or
+Shippo. Compose publishes the backend on host port `5001` by default and sets
+`SHIPPO_INTEGRATION_BASE_URL=http://shippo-integration:8001` for private
+service-to-service traffic.
+
+SQLite data is stored in the `backend-data` named volume, mounted only at
+`/app/database`. File logging is disabled in Compose so operational logs flow
+to container standard output. See
+[the parent containerization guide](../CONTAINERIZATION.md) for operation and
+port overrides.
+
 ## Backend-Frontend Route Mapping
 
 | Domain | Route | Frontend usage |

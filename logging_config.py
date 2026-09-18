@@ -5,6 +5,7 @@ process-wide logging configuration, and exposes the named application logger.
 """
 
 import logging
+import os
 from logging.config import dictConfig
 from pathlib import Path
 
@@ -14,6 +15,24 @@ LOG_FILE = LOG_DIR / "activity.log"
 
 # Resolve logs from the project root so startup location cannot redirect output.
 LOG_DIR.mkdir(parents=True, exist_ok=True)
+
+
+def parse_file_logging_enabled() -> bool:
+    """Return whether rotating file logs are enabled for this process."""
+    raw_value = os.getenv("BACKEND_FILE_LOGGING_ENABLED", "true").strip().lower()
+    if raw_value in {"1", "true", "yes", "on"}:
+        return True
+    if raw_value in {"0", "false", "no", "off"}:
+        return False
+    raise ValueError(
+        "BACKEND_FILE_LOGGING_ENABLED must be one of: "
+        "0, 1, false, no, off, on, true, yes"
+    )
+
+
+root_handlers = ["console"]
+if parse_file_logging_enabled():
+    root_handlers.append("application_file")
 
 dictConfig(
     {
@@ -50,7 +69,7 @@ dictConfig(
         },
         # The root receives application and third-party records at INFO or above.
         "root": {
-            "handlers": ["console", "application_file"],
+            "handlers": root_handlers,
             "level": "INFO",
         },
     }
@@ -59,4 +78,4 @@ dictConfig(
 logger = logging.getLogger("H2_Generator_API")
 
 
-__all__ = ["logger"]
+__all__ = ["logger", "parse_file_logging_enabled"]

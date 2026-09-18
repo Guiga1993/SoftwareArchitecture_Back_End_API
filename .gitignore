@@ -15,3 +15,8 @@ env/
 
 # Logs
 *.log
+logs/
+
+# Runtime persistence
+database/*.sqlite3
+database/*.sqlite3-*
