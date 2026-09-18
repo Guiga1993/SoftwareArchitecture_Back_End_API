@@ -47,6 +47,20 @@ the product-specific freight rule, creates one parcel per generator, and sends
 integration API knows Shippo credentials, provider paths, retry policy, and raw
 provider response formats.
 
+## Shippo Service Dependencies
+
+The backend does not call Shippo or any carrier directly. It calls only
+`SoftwareArchitecture_API_External`, which uses the Shippo REST API for address
+validation and shipment rates. On Shippo's status page, `Shippo REST API`,
+`Shippo Web Dashboard`, `Carrier API`, and `Shippo Platform API` are monitoring
+categories rather than four APIs required by this backend.
+
+This system directly depends on the Shippo REST API through the integration
+service and indirectly depends on Carrier APIs used by Shippo. It does not use
+the Shippo Web Dashboard or Shippo Platform API. Consequently, carrier outages
+may prevent quotes while backend CRUD and SQLite operations remain available.
+See [Shippo's status page](https://status.goshippo.com/) for current health.
+
 ## Container Deployment
 
 The container runs `app:app` with Gunicorn on port `5001`. Its liveness check

@@ -44,6 +44,21 @@ The browser is the backend's public application client. The integration API is
 an internal downstream service. Neither adjacent repository is imported as a
 Python package; communication occurs through HTTP contracts.
 
+### Shippo dependency interpretation
+
+The backend has no direct Shippo or carrier network connection. It sends
+normalized HTTP requests to the integration API, which directly calls Shippo's
+REST API (`POST /addresses/` and `POST /shipments/`). Shippo may then contact
+carrier APIs to obtain rates, making those carrier systems an indirect
+dependency.
+
+Shippo's `REST API`, `Web Dashboard`, `Carrier API`, and `Platform API` status
+entries are operational monitoring categories. This architecture uses neither
+the Web Dashboard nor Platform API. A REST API outage affects both shipping
+operations, while a carrier-specific outage may affect quote availability but
+does not prevent unrelated backend CRUD operations. Current provider health is
+reported at [Shippo's status page](https://status.goshippo.com/).
+
 Local development runs the Flask application on `127.0.0.1:5001` and normally
 uses `http://127.0.0.1:8001` for the downstream service. In Compose, Gunicorn
 binds the backend to container port `5001`, nginx forwards browser `/api`
