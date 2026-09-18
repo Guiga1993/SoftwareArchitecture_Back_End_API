@@ -59,8 +59,8 @@ SQLite data is stored in the `backend-data` named volume, mounted only at
 `/app/database`. File logging is disabled in Compose so operational logs flow
 to container standard output. The stack definition is maintained in
 [the external API repository](../SoftwareArchitecture_API_External/docker-compose.yml).
-See [the containerization guide](../CONTAINERIZATION.md) for operation and port
-overrides.
+See [the containerization guide](../SoftwareArchitecture_API_External/CONTAINERIZATION.md)
+for operation and port overrides.
 
 ## Backend-Frontend Route Mapping
 
