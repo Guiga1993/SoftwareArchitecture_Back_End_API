@@ -69,9 +69,10 @@ Shippo. Compose publishes the backend on host port `5001` by default and sets
 `SHIPPO_INTEGRATION_BASE_URL=http://shippo-integration:8001` for private
 service-to-service traffic.
 
-SQLite data is stored in the `backend-data` named volume, mounted only at
-`/app/database`. File logging is disabled in Compose so operational logs flow
-to container standard output. The stack definition is maintained in
+SQLite data is stored through the host bind mount
+`../SoftwareArchitecture_API_External/database:/app/database`. File logging is
+disabled in Compose so operational logs flow to container standard output. The
+stack definition is maintained in
 [the external API repository](../SoftwareArchitecture_API_External/docker-compose.yml).
 See [the containerization guide](../SoftwareArchitecture_API_External/CONTAINERIZATION.md)
 for operation and port overrides.
@@ -161,19 +162,30 @@ HTTP. Copy `.env.example` to a backend-local `.env` and configure:
 SHIPPO_INTEGRATION_BASE_URL=http://127.0.0.1:8001
 SHIPPO_INTEGRATION_CONNECT_TIMEOUT_SECONDS=3.05
 SHIPPO_INTEGRATION_READ_TIMEOUT_SECONDS=30
+BACKEND_HOST=127.0.0.1
+BACKEND_PORT=5001
+BACKEND_DEBUG=false
+BACKEND_FILE_LOGGING_ENABLED=true
 ```
 
 The backend must not contain Shippo credentials. Provider authentication,
 provider endpoints, retries, and response parsing belong to
 `SoftwareArchitecture_API_External`. Origin and destination are supplied per
-request. In a future Docker network, the base
-URL could instead be `http://shippo-integration:8001`.
+request. Compose sets the integration base URL to
+`http://shippo-integration:8001` for service-to-service traffic.
+
+`BACKEND_HOST`, `BACKEND_PORT`, and `BACKEND_DEBUG` configure only the local
+`python app.py` development server; the container starts Gunicorn directly.
+Boolean settings accept `1`, `true`, `yes`, or `on`, and `0`, `false`, `no`, or
+`off`, case-insensitively. File logging defaults to enabled locally and is
+disabled by Compose so container logs remain on standard output.
 
 On startup, the system automatically:
 - Creates the `database/` folder (if missing)
 - Creates `database/db.sqlite3` (if missing)
 - Creates database tables from SQLAlchemy models
-- Creates log directory `logs/h2_system/` and log file `activity.log`
+- Applies idempotent legacy migrations for missing generator shipping columns
+- Creates `logs/h2_system/`; when file logging is enabled, writes `activity.log`
 
 ## Running the API
 

@@ -64,7 +64,8 @@ uses `http://127.0.0.1:8001` for the downstream service. In Compose, Gunicorn
 binds the backend to container port `5001`, nginx forwards browser `/api`
 requests to it, and the downstream URL is
 `http://shippo-integration:8001`. The backend health route is process liveness
-only. SQLite persists in the `backend-data` volume mounted at `/app/database`.
+only. SQLite persists through the host bind mount
+`../SoftwareArchitecture_API_External/database:/app/database`.
 
 ## 3. Layered Structure
 
@@ -512,6 +513,15 @@ Backend integration settings:
 | `SHIPPO_INTEGRATION_BASE_URL` | `http://127.0.0.1:8001` in the example file | Integration service origin |
 | `SHIPPO_INTEGRATION_CONNECT_TIMEOUT_SECONDS` | `3.05` | TCP connection timeout |
 | `SHIPPO_INTEGRATION_READ_TIMEOUT_SECONDS` | `30` | Response read timeout |
+| `BACKEND_HOST` | `127.0.0.1` | Bind address for the local Flask development server |
+| `BACKEND_PORT` | `5001` | Port for the local Flask development server; validated from 1 through 65535 |
+| `BACKEND_DEBUG` | `false` | Enable local Flask debug mode |
+| `BACKEND_FILE_LOGGING_ENABLED` | `true` | Write rotating logs to `logs/h2_system/activity.log`; Compose sets `false` |
+
+The boolean variables accept `1`, `true`, `yes`, or `on`, and `0`, `false`,
+`no`, or `off`, case-insensitively. `BACKEND_HOST`, `BACKEND_PORT`, and
+`BACKEND_DEBUG` apply to `python app.py`; the container starts Gunicorn with its
+bind address configured in the Dockerfile.
 
 Recommended local startup order:
 
